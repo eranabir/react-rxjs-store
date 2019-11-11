@@ -7,7 +7,6 @@ export function StoreProvider({store, children}) {
         <StoreContext.Provider value={store}>
             {children}
         </StoreContext.Provider>
-
     )
 
 }

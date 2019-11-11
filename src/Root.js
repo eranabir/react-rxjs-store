@@ -5,22 +5,15 @@ import Root2 from "./Root2";
 
 function Root() {
 
-    const {loginStatus} = useStore(({AuthStore})=>({loginStatus:AuthStore.loginStatus}));
-    const {doLogin,doLogout} = useActions(({AuthStore})=>({doLogout:AuthStore.doLogout,doLogin:AuthStore.doLogin}));
+    const {loginStatus,books} = useStore(({AuthStore,BooksStore})=>({loginStatus:AuthStore.loginStatus,books:BooksStore.books}));
+    const {doLogin,doLogout,getBooks} = useActions(({AuthStore,BooksStore})=>({getBooks:BooksStore.getBooks,doLogout:AuthStore.doLogout,doLogin:AuthStore.doLogin}));
 
-
-    const test =async()=>{
-
-
-        try{
-            await doLogin();
-        }catch (e) {
+    console.log('loginStatus',loginStatus)
+    console.log('books',books)
 
 
 
-        }
 
-    };
     return (<div className="App">
         <header className="App-header">
 
@@ -36,15 +29,16 @@ function Root() {
             >
                 Learn React
             </a>
-            <p>{loginStatus ? 'true' : 'false'}</p>
-            <button onClick={()=>doLogin()}>login</button>
-            <button onClick={()=>doLogout()}>do logout</button>
+            <div>{loginStatus && <Root2/>}</div>
 
+            <h5>Login Status {loginStatus ? 'true':'false'}</h5>
+            <h5>Books : {books.length}</h5>
 
-            <div>
-                <h1>Root2</h1>
-                <Root2/>
-            </div>
+            {!loginStatus && <button onClick={()=>doLogin()}>login</button>}
+            {loginStatus && <button onClick={()=>doLogout()}>do logout</button>}
+
+            <button onClick={()=>getBooks()}>get books</button>
+
 
         </header>
     </div>)

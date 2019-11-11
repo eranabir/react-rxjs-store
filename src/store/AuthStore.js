@@ -3,17 +3,18 @@ import {BehaviorSubject} from 'rxjs';
 class AuthStore {
 
     loginStatus = new BehaviorSubject(false);
-    doLogin = async() => {
 
+    doLogin = async() => {
+        console.log('do login');
         try{
-            this.loginStatus.next(true)
+
+            this.loginStatus.next(true);
+
             return true
         }
         catch (e) {
             throw e
         }
-
-
 
     };
     doLogout = () => {

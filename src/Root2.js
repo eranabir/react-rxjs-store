@@ -3,13 +3,14 @@ import {useStore} from "./store";
 
 function Root2() {
 
-    const {loginStatus} = useStore(({AuthStore}) => ({loginStatus: AuthStore.loginStatus}));
+    const {loginStatus} = useStore(({AuthStore,BooksStore})=>({loginStatus:AuthStore.loginStatus,books:BooksStore.books}));
 
-    return (
+    console.log('root2 render',loginStatus);
 
-        <p>{loginStatus ? 'true' : 'false'}</p>
 
-    )
+    return (<div >
+        Root2
+    </div>)
 
 }
 

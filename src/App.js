@@ -9,7 +9,6 @@ function App() {
       <StoreProvider store={store}>
           <Root/>
       </StoreProvider>
-
   );
 }
 
