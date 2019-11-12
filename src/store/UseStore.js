@@ -1,47 +1,51 @@
-import {useContext,useState,useEffect} from 'react';
+import {useContext, useState, useEffect} from 'react';
 import {StoreContext} from "./";
-import {skip} from "rxjs/operators";
+import {skip,distinctUntilChanged} from "rxjs/operators";
 
-export function useStore(cb){
+export function useStore(cb) {
 
-    const store = useContext(StoreContext);
-    const storeValues = cb(store);
-    const initValues = {};
+  const store = useContext(StoreContext);
+  const storeValues = cb(store);
 
-    Object.keys(storeValues).forEach((key)=>{
-        const subject = storeValues[key];
-        initValues[key] = subject.getValue()
+  function getStateValues() {
+    const stateValues = {};
+    Object.keys(storeValues).forEach((key) => {
+      const subject = storeValues[key];
+      stateValues[key] = subject.getValue()
     });
+    return stateValues;
+  }
+  function subscribeToStoreValues (){
 
-    console.log('initValues',initValues);
-    const [subStoreValues,setSubStoreValues] = useState(initValues);
+    const unsubscribables = [];
+    Object.keys(storeValues).forEach((key) => {
+      const subject = storeValues[key];
+      const unsubscribable = subject.pipe(distinctUntilChanged()).pipe(skip(1)).subscribe(data => {
+        console.log(`${key} changed :`,data);
+        setSubStoreValues(oldValues=>({...oldValues,[key]: data}));
+      });
+      unsubscribables.push(unsubscribable)
+    });
+    return unsubscribables
 
-    useEffect(()=>{
+  }
 
-        const unsubscribables = [];
-        console.log('use Effect');
-        Object.keys(storeValues).forEach((key)=>{
-            const subject = storeValues[key];
-            const unsubscribable = subject.pipe(skip(1)).subscribe(data=>{
-                console.log('value changed',data);
+  const stateValues = getStateValues();
+  const [subStoreValues, setSubStoreValues] = useState(stateValues);
 
+  console.log('useStore Hook stateValues : ', stateValues);
 
-                Object.keys(storeValues).forEach((key)=>{
-                    const subject = storeValues[key];
-                    initValues[key] = subject.getValue()
-                });
+  useEffect(() => {
 
+    console.log('useStore Hook : useEffect');
 
-                setSubStoreValues({...initValues,[key]:data})
-            });
-            unsubscribables.push(unsubscribable)
-        });
+    const unsubscribables = subscribeToStoreValues();
 
-        return function () {
-            console.log('unsubscribed');
-            unsubscribables.forEach(u=>u.unsubscribe())
-        }
-    },[]);
+    return function () {
+      console.log('unsubscribed');
+      unsubscribables.forEach(u => u.unsubscribe())
+    }
+  }, []);
 
-    return subStoreValues
+  return subStoreValues
 }
